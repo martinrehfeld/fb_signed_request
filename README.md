@@ -1,0 +1,1 @@
+[![Build Status](https://secure.travis-ci.org/wooga/fb_signed_request.png?branch=master)](http://travis-ci.org/wooga/fb_signed_request)
