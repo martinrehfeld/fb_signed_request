@@ -11,11 +11,11 @@ for facebook. It depends on etest for testing and jiffy for json parsing.
 
 % Parsing a signed request from Facebook
 Req = "Z9Xn16Pdo5ac9YWDh5HD70aujhsZ9eCoyPMcpd2aaiM.eyJhbGdvcml0aG0iOiJITUFDLVN"
-    "IQTI1NiIsImV4cGlyZXMiOjEzMDg5ODg4MDAsImlzc3VlZF9hdCI6MTMwODk4NTAxOCwib2"
-    "F1dGhfdG9rZW4iOiIxMTExMTExMTExMTExMTF8Mi5BUUJBdHRSbExWbndxTlBaLjM2MDAuM"
-    "TExMTExMTExMS4xLTExMTExMTExMTExMTExMXxUNDl3M0Jxb1pVZWd5cHJ1NTFHcmE3MGhF"
-    "RDgiLCJ1c2VyIjp7ImFnZSI6eyJtaW4iOjIxfSwiY291bnRyeSI6ImRlIiwibG9jYWxlIjo"
-    "iZW5fVVMifSwidXNlcl9pZCI6IjExMTExMTExMTExMTExMSJ9",
+      "IQTI1NiIsImV4cGlyZXMiOjEzMDg5ODg4MDAsImlzc3VlZF9hdCI6MTMwODk4NTAxOCwib2"
+      "F1dGhfdG9rZW4iOiIxMTExMTExMTExMTExMTF8Mi5BUUJBdHRSbExWbndxTlBaLjM2MDAuM"
+      "TExMTExMTExMS4xLTExMTExMTExMTExMTExMXxUNDl3M0Jxb1pVZWd5cHJ1NTFHcmE3MGhF"
+      "RDgiLCJ1c2VyIjp7ImFnZSI6eyJtaW4iOjIxfSwiY291bnRyeSI6ImRlIiwibG9jYWxlIjo"
+      "iZW5fVVMifSwidXNlcl9pZCI6IjExMTExMTExMTExMTExMSJ9",
 
 {ok, Data} = fb_signed_request:parse(Req, FacebookAppSecret).
 
