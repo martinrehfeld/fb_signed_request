@@ -7,9 +7,12 @@ for facebook. It depends on etest for testing and jiffy for json parsing.
 
 ## Usage
 
+
 ```erlang
 
 % Parsing a signed request from Facebook
+% Input can be list or bitstring
+% Payload data will be returned as bitstring
 Req = "Z9Xn16Pdo5ac9YWDh5HD70aujhsZ9eCoyPMcpd2aaiM.eyJhbGdvcml0aG0iOiJITUFDLVN"
       "IQTI1NiIsImV4cGlyZXMiOjEzMDg5ODg4MDAsImlzc3VlZF9hdCI6MTMwODk4NTAxOCwib2"
       "F1dGhfdG9rZW4iOiIxMTExMTExMTExMTExMTF8Mi5BUUJBdHRSbExWbndxTlBaLjM2MDAuM"
@@ -27,22 +30,15 @@ Req = "Z9Xn16Pdo5ac9YWDh5HD70aujhsZ9eCoyPMcpd2aaiM.eyJhbGdvcml0aG0iOiJITUFDLVN"
 
 
 % Generate a signed request (useful for testing)
-Options = [
-    {<<"algorithm">>,<<"HMAC-SHA256">>},
-    {<<"expires">>,1308988800},
-    {<<"issued_at">>,1308985018},
-    {<<"oauth_token">>,<<"111111111111111|2.AQBAttRlLVnwqNPZ.3600.1111111111.1-111111111111111|T49w3BqoZUegypru51Gra70hED8">>},
-    {<<"user">>,[
-        {<<"age">>,[
-            {<<"min">>,21}
-        ]},
-        {<<"country">>,<<"de">>},
-        {<<"locale">>,<<"en_US">>}
-    ]},
-    {<<"user_id">>,<<"111111111111111">>}
-],
+Json = <<"{\"algorithm\":\"HMAC-SHA256\",\"expires\":1308988800,"
+         "\"issued_at\":1308985018,\"oauth_token\":\"11|2.SOMETOKEN\","
+         "\"user\":{\"age\":{\"min\":21},\"country\":\"de\","
+         "\"locale\":\"en_US\"},\"user_id\":\"111111111111111\"}">>
 
-SignedRequest = fb_signed_request:generate(Options, FacebookAppSecret).
+SignedRequest = fb_signed_request:generate(Json, FacebookAppSecret).
+
+% If you want generate to return a bitstring you can call:
+fb_signed_request:generate(Json, FacebookAppSecret, [{return,binary}]).
 ```
 
 ## Installation
@@ -52,8 +48,3 @@ Add the following line to your rebar.config
 ```erlang
 {fb_signed_request, ".*", {git, "git://github.com/wooga/fb_signed_request.git"}}
 ```
-
-## Note about Jiffy / Json Format
-
-By default Jiffy is wrapping all proplists / dicts in extra curly braces. This is a pain to work with and therefore fb_signed_request is expecting and returning regular proplists like in the example above.
-

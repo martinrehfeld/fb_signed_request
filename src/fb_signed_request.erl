@@ -1,11 +1,11 @@
 -module(fb_signed_request).
 
--export([parse/2, generate/2]).
+-export([parse/2, generate/2, generate/3]).
 
--define( PADDING, re:compile("(=|%3d)+$", [caseless]) ).
+-define(PADDING, re:compile("(=|%3d)+$", [caseless])).
 
 
-parse( Request, Secret ) ->
+parse(Request, Secret) ->
     try
         [Signature, Payload] = extract_signature_and_payload(Request),
         Data                 = decode_body(Payload),
@@ -16,14 +16,10 @@ parse( Request, Secret ) ->
     end.
 
 
-generate( Payload, Secret ) ->
+generate(Payload, Secret) ->
     EncodedPayload = url_safe(
         strip_padding(
-            base64:encode_to_string(
-                jiffy:encode(
-                    pack(Payload)
-                )
-            )
+            base64:encode_to_string(Payload)
         )
     ),
 
@@ -31,7 +27,11 @@ generate( Payload, Secret ) ->
     lists:flatten([EncodedSignature, ".", EncodedPayload]).
 
 
-extract_signature_and_payload( Request ) ->
+generate(Payload, Secret, [{return, binary}]) ->
+    erlang:list_to_binary(generate(Payload, Secret)).
+
+
+extract_signature_and_payload(Request) ->
     try
         re:split(Request, "\\.", [{return, list}])
     catch
@@ -39,22 +39,22 @@ extract_signature_and_payload( Request ) ->
     end.
 
 
-decode_body( Payload ) ->
+decode_body(Payload) when is_binary(Payload) ->
+    decode_body( binary:bin_to_list(Payload) );
+
+
+decode_body(Payload) when is_list(Payload) ->
     try
-        unpack(
-            jiffy:decode(
-                base64:decode_to_string(
-                    base64_pad(Payload)
-                )
-            )
+        erlang:list_to_binary(
+            base64:decode_to_string( base64_pad(Payload) )
         )
     catch
-        _:_ -> throw({fb_signed_request, <<"Invalid Payload">>})
+       _:_ -> throw({fb_signed_request, <<"Invalid Payload">>})
     end.
 
 
 %% @doc does what it says
-validate_signature( Signature, Payload, Secret ) ->
+validate_signature(Signature, Payload, Secret) ->
     try
         ComputedSignature = create_signature(Payload, Secret),
         ComputedSignature = Signature
@@ -105,61 +105,3 @@ base64_pad( String ) ->
         N -> 4 - N
     end,
     string:left(String, Length + ToPad, $=).
-
-
-% JSON is encoded from and decoded to recursive JSON-structures as used by
-% jiffy, see https://github.com/davisp/jiffy for more information.
-% Thus any structure obtained via jiffy:decode needs to be unpacked first.
-% That is stripped of extra tuples and list constructors.
-
-%% @doc Attempts to extract a orddict from the given jiffy-JSON.
-unpack( Json ) when is_list(Json) orelse is_tuple(Json) ->
-    unpack(Json, orddict:new());
-
-
-%% Only tuples and list require deeper unpacking, return simple structs.
-unpack( Json ) -> Json.
-
-
-%% @doc Recursively unpacks a nested jiffy-JSON object.
-unpack( {Proplist}, Dict ) when is_list(Proplist) ->
-    lists:foldl(
-        fun({Key, Value}, Acc) ->
-            orddict:store(Key, unpack(Value), Acc)
-        end,
-        Dict,
-        Proplist
-    );
-
-
-% List of jiffy-JSON => list of unpacked structs.
-unpack( List, _ ) when is_list(List) ->
-    [unpack(Elem) || Elem <- List].
-
-
-%% @doc Recursively builds a jiffy-JSON struct from the given orddict.
-% Single orddict => jiffy-JSON object.
-pack( Orddict = [Head|_] ) when is_list(Orddict) andalso is_tuple(Head) ->
-    {orddict:fold(
-        fun(Key, Value, Acc) ->
-            Acc ++ [{Key, pack(Value)}]
-        end,
-        [],
-        Orddict
-    )};
-
-
-% Treat the empty list as an empty object.
-pack( [] ) -> [];
-
-
-% List of orddicts => list of jiffy-JSON objects.
-pack( List ) when is_list(List) ->
-    [pack(Elem) || Elem <- List];
-
-
-pack( undefined ) -> null;
-
-
-% Simple term => same simple term.
-pack( Value ) -> Value.
