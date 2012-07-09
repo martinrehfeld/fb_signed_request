@@ -50,7 +50,7 @@ SignedRequest = fb_signed_request:generate(Options, FacebookAppSecret).
 Add the following line to your rebar.config
 
 ```erlang
-{etest, ".*", {git, "git://github.com/wooga/fb_signed_request.git"}}
+{fb_signed_request, ".*", {git, "git://github.com/wooga/fb_signed_request.git"}}
 ```
 
 ## Note about Jiffy / Json Format
