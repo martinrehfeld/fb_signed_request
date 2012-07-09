@@ -31,7 +31,7 @@ generate( Payload, Secret ) ->
     lists:flatten([EncodedSignature, ".", EncodedPayload]).
 
 
-extract_signature_and_payload(Request) ->
+extract_signature_and_payload( Request ) ->
     try
         re:split(Request, "\\.", [{return, list}])
     catch
@@ -64,7 +64,7 @@ validate_signature( Signature, Payload, Secret ) ->
 
 
 %% @doc Calculate signature from Json and FB App Secret
-create_signature(Payload, Secret) ->
+create_signature( Payload, Secret ) ->
     strip_padding(
         url_safe(
             base64:encode_to_string(
@@ -75,7 +75,7 @@ create_signature(Payload, Secret) ->
 
 
 %% @doc Transforms the given signature into a URL-safe format.
-url_safe(Signature) ->
+url_safe( Signature ) ->
     lists:map(fun(Element) ->
         case Element of
             43 -> 45;
@@ -97,7 +97,7 @@ strip_padding( Signature ) ->
 
 
 %% @doc Add trailing '=' from base64 string
-base64_pad(String) ->
+base64_pad( String ) ->
     Length = length(String),
     Remainder = Length rem 4,
     ToPad = case Remainder of
@@ -113,53 +113,53 @@ base64_pad(String) ->
 % That is stripped of extra tuples and list constructors.
 
 %% @doc Attempts to extract a orddict from the given jiffy-JSON.
-unpack(Json) when is_list(Json) orelse is_tuple(Json) ->
-  unpack(Json, orddict:new());
+unpack( Json ) when is_list(Json) orelse is_tuple(Json) ->
+    unpack(Json, orddict:new());
 
 
 %% Only tuples and list require deeper unpacking, return simple structs.
-unpack(Json) -> Json.
+unpack( Json ) -> Json.
 
 
 %% @doc Recursively unpacks a nested jiffy-JSON object.
-unpack({Proplist}, Dict) when is_list(Proplist) ->
-  lists:foldl(
-    fun({Key, Value}, Acc) ->
-      orddict:store(Key, unpack(Value), Acc)
-    end,
-    Dict,
-    Proplist
-  );
+unpack( {Proplist}, Dict ) when is_list(Proplist) ->
+    lists:foldl(
+        fun({Key, Value}, Acc) ->
+            orddict:store(Key, unpack(Value), Acc)
+        end,
+        Dict,
+        Proplist
+    );
 
 
 % List of jiffy-JSON => list of unpacked structs.
-unpack(List, _) when is_list(List) ->
-  [unpack(Elem) || Elem <- List].
+unpack( List, _ ) when is_list(List) ->
+    [unpack(Elem) || Elem <- List].
 
 
 %% @doc Recursively builds a jiffy-JSON struct from the given orddict.
 % Single orddict => jiffy-JSON object.
-pack(Orddict = [Head|_]) when is_list(Orddict) andalso is_tuple(Head) ->
-  {orddict:fold(
-    fun(Key, Value, Acc) ->
-      Acc ++ [{Key, pack(Value)}]
-    end,
-    [],
-    Orddict
-  )};
+pack( Orddict = [Head|_] ) when is_list(Orddict) andalso is_tuple(Head) ->
+    {orddict:fold(
+        fun(Key, Value, Acc) ->
+            Acc ++ [{Key, pack(Value)}]
+        end,
+        [],
+        Orddict
+    )};
 
 
 % Treat the empty list as an empty object.
-pack([]) -> [];
+pack( [] ) -> [];
 
 
 % List of orddicts => list of jiffy-JSON objects.
-pack(List) when is_list(List) ->
-  [pack(Elem) || Elem <- List];
+pack( List ) when is_list(List) ->
+    [pack(Elem) || Elem <- List];
 
 
-pack(undefined) -> null;
+pack( undefined ) -> null;
 
 
 % Simple term => same simple term.
-pack(Value) -> Value.
+pack( Value ) -> Value.
