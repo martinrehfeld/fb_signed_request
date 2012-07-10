@@ -28,7 +28,7 @@ generate(Payload, Secret) ->
 
 
 generate(Payload, Secret, [{return, binary}]) ->
-    erlang:list_to_binary(generate(Payload, Secret)).
+    list_to_binary(generate(Payload, Secret)).
 
 
 extract_signature_and_payload(Request) ->
@@ -39,12 +39,12 @@ extract_signature_and_payload(Request) ->
 
 
 decode_body(Payload) when is_binary(Payload) ->
-    decode_body( binary:bin_to_list(Payload) );
+    decode_body( binary_to_list(Payload) );
 
 
 decode_body(Payload) when is_list(Payload) ->
     try
-        erlang:list_to_binary(
+        list_to_binary(
             base64:decode_to_string( base64_pad(Payload) )
         )
     catch
