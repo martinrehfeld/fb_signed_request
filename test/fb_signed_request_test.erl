@@ -18,7 +18,7 @@ test_parsing_a_valid_request() ->
 
 test_parsing_a_invalid_request() ->
     Result = fb_signed_request:parse(?INVALID_REQ, ?FB_SECRET),
-    ?assert_equal({error, <<"Invalid Signature">>}, Result).
+    ?assert_equal({error, invalid_signature}, Result).
 
 
 test_generating_and_parsing_and_validating_a_request() ->

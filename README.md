@@ -24,9 +24,9 @@ Req = "Z9Xn16Pdo5ac9YWDh5HD70aujhsZ9eCoyPMcpd2aaiM.eyJhbGdvcml0aG0iOiJITUFDLVN"
 
 
 % If the request is invalid the following return values are expected:
-{error, <<"Invalid format of signed request">>}
-{error, <<"Invalid Signature">>}
-{error, <<"Invalid Payload">>}
+{error, invalid_format}
+{error, invalid_signature}
+{error, invalid_payload}
 
 
 % Generate a signed request (useful for testing)

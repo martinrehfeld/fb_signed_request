@@ -35,7 +35,7 @@ extract_signature_and_payload(Request) ->
     try
         re:split(Request, "\\.", [{return, list}])
     catch
-        _:_ -> throw({fb_signed_request, <<"Invalid format of signed request">>})
+        _:_ -> throw({fb_signed_request, invalid_format})
     end.
 
 
@@ -49,7 +49,7 @@ decode_body(Payload) when is_list(Payload) ->
             base64:decode_to_string( base64_pad(Payload) )
         )
     catch
-       _:_ -> throw({fb_signed_request, <<"Invalid Payload">>})
+       _:_ -> throw({fb_signed_request, invalid_payload})
     end.
 
 
@@ -59,7 +59,7 @@ validate_signature(Signature, Payload, Secret) ->
         ComputedSignature = create_signature(Payload, Secret),
         ComputedSignature = Signature
     catch
-        error:{badmatch,_} -> throw({fb_signed_request, <<"Invalid Signature">>})
+        error:{badmatch,_} -> throw({fb_signed_request, invalid_signature})
     end.
 
 
