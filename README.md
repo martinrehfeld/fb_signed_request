@@ -27,6 +27,7 @@ Req = "Z9Xn16Pdo5ac9YWDh5HD70aujhsZ9eCoyPMcpd2aaiM.eyJhbGdvcml0aG0iOiJITUFDLVN"
 {error, invalid_format}
 {error, invalid_signature}
 {error, invalid_payload}
+{error, unsupported_algorithm}
 
 
 % Generate a signed request (useful for testing)

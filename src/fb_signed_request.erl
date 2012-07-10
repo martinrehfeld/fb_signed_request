@@ -3,12 +3,14 @@
 -export([parse/2, generate/2, generate/3]).
 
 -define(PADDING, re:compile("(=|%3d)+$", [caseless])).
+-define(SUPPORTED_ALGORITHMS, re:compile("\"algorithm\"\s*:\s*\"HMAC-SHA256\"")).
 
 
 parse(Request, Secret) ->
     try
         [Signature, Payload] = extract_signature_and_payload(Request),
         Data                 = decode_body(Payload),
+        validate_algorithm(Data),
         validate_signature(Signature, Payload, Secret),
         {ok, Data}
     catch
@@ -51,6 +53,15 @@ decode_body(Payload) when is_list(Payload) ->
        _:_ -> throw({fb_signed_request, invalid_payload})
     end.
 
+
+%% @doc does what it says
+validate_algorithm(Data) ->
+    {ok, Regex} = ?SUPPORTED_ALGORITHMS,
+    try
+        {match, _} = re:run(Data, Regex)
+    catch
+        error:{badmatch,_} -> throw({fb_signed_request, unsupported_algorithm})
+    end.
 
 %% @doc does what it says
 validate_signature(Signature, Payload, Secret) ->
