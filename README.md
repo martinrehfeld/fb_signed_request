@@ -1,7 +1,7 @@
 # Facebook Signed Request
 
 This is a small library to parse, validate and generate signed requests from /
-for facebook. It depends on etest for testing and jiffy for json parsing.
+for facebook. It depends on erlsha2 and etest for testing.
 
 [![Build Status](https://secure.travis-ci.org/wooga/fb_signed_request.png?branch=master)](http://travis-ci.org/wooga/fb_signed_request)
 
@@ -9,7 +9,6 @@ for facebook. It depends on etest for testing and jiffy for json parsing.
 
 
 ```erlang
-
 % Parsing a signed request from Facebook
 % Input can be list or bitstring
 % Payload data will be returned as bitstring
