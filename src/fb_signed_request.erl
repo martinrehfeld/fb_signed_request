@@ -28,28 +28,27 @@ generate(Payload, Secret) ->
 
 
 generate(Payload, Secret, [{return, binary}]) ->
-    erlang:list_to_binary(generate(Payload, Secret)).
+    list_to_binary(generate(Payload, Secret)).
 
 
 extract_signature_and_payload(Request) ->
-    try
-        re:split(Request, "\\.", [{return, list}])
-    catch
-        _:_ -> throw({fb_signed_request, <<"Invalid format of signed request">>})
+    case re:split(Request, "\\.", [{return, list}]) of
+        [Signature, Payload] -> [Signature, Payload];
+        _                    -> throw({fb_signed_request, invalid_format})
     end.
 
 
 decode_body(Payload) when is_binary(Payload) ->
-    decode_body( binary:bin_to_list(Payload) );
+    decode_body( binary_to_list(Payload) );
 
 
 decode_body(Payload) when is_list(Payload) ->
     try
-        erlang:list_to_binary(
+        list_to_binary(
             base64:decode_to_string( base64_pad(Payload) )
         )
     catch
-       _:_ -> throw({fb_signed_request, <<"Invalid Payload">>})
+       _:_ -> throw({fb_signed_request, invalid_payload})
     end.
 
 
@@ -59,7 +58,7 @@ validate_signature(Signature, Payload, Secret) ->
         ComputedSignature = create_signature(Payload, Secret),
         ComputedSignature = Signature
     catch
-        error:{badmatch,_} -> throw({fb_signed_request, <<"Invalid Signature">>})
+        error:{badmatch,_} -> throw({fb_signed_request, invalid_signature})
     end.
 
 
