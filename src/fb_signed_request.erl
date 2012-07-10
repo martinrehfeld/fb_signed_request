@@ -32,10 +32,9 @@ generate(Payload, Secret, [{return, binary}]) ->
 
 
 extract_signature_and_payload(Request) ->
-    try
-        re:split(Request, "\\.", [{return, list}])
-    catch
-        _:_ -> throw({fb_signed_request, invalid_format})
+    case re:split(Request, "\\.", [{return, list}]) of
+        [Signature, Payload] -> [Signature, Payload];
+        _                    -> throw({fb_signed_request, invalid_format})
     end.
 
 
